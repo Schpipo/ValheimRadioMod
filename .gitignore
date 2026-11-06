@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Audio sub-folders
+Audio/*/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
