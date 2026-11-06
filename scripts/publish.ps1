@@ -52,6 +52,9 @@ if ($Target.Equals("Debug")) {
     Copy-Item -Path "$TargetPath\$name.dll" -Destination "$plug" -Force
     Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$plug" -Force
     Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$plug" -Force
+	Copy-Item -Path "$TargetPath\Package\icon.png" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\Audio" -Destination "$plug" -Recurse -Force
+	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
 }
 
 if($Target.Equals("Release")) {

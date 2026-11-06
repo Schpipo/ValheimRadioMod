@@ -1,0 +1,20 @@
+{
+    "English": {
+        "radio_name": "Radio",
+            "radio_on": "On",
+                "radio_off": "Off",
+                    "radio_toggle": "Toggle",
+                        "radio_next_station": "Next station",
+                            "radio_volume_down": "Volume down",
+                                "radio_volume_up": "Volume up"
+    },
+    "German": {
+        "radio_name": "Radio",
+            "radio_on": "An",
+                "radio_off": "Aus",
+                    "radio_toggle": "An/Aus",
+                        "radio_next_station": "Sender wechseln",
+                            "radio_volume_down": "Leiser",
+                                "radio_volume_up": "Lauter"
+    }
+}
