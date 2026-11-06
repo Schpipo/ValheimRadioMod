@@ -34,14 +34,10 @@ namespace ValheimRadioMod
         {
             LastScrollDelta = Input.GetAxis("Mouse ScrollWheel");
 
-            // Consume scroll if any radio is currently being hovered
-            // (we rely on the fact that GetHoverText was called recently)
-            if (LastScrollDelta != 0f)
+            if (RadioBehaviour.IsAnyHovered)
             {
-                // Simple approach: always consume if we have a non-zero scroll and a radio exists
-                // Better: track hovered radios (see note below)
                 __result = 0f;
-                return false;
+                return false; // Consume scroll only when a radio is hovered
             }
             return true;
         }

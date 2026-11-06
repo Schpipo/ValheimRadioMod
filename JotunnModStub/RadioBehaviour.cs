@@ -5,6 +5,10 @@ namespace ValheimRadioMod
 {
     public class RadioBehaviour : MonoBehaviour, Hoverable, Interactable
     {
+        private static readonly HashSet<RadioBehaviour> HoveredRadios = new HashSet<RadioBehaviour>();
+
+        public static bool IsAnyHovered => HoveredRadios.Count > 0;
+
         private float hoverEndTime = 0f;
 
         public string CurrentStation = "";
@@ -36,8 +40,19 @@ namespace ValheimRadioMod
             }
         }
 
+        private void OnDestroy()
+        {
+            HoveredRadios.Remove(this);
+        }
+
         private void Update()
         {
+            // Remove from hovered set if hover expired
+            if (Time.time >= hoverEndTime)
+            {
+                HoveredRadios.Remove(this);
+            }
+
             if (!IsOn || AudioManager.Instance == null)
             {
                 if (audioSource.isPlaying)
@@ -63,7 +78,7 @@ namespace ValheimRadioMod
 
             audioSource.volume = Volume;
 
-            // Apply scroll only to this radio if it was recently hovered
+            // Apply scroll only if this specific radio is hovered
             if (Time.time < hoverEndTime)
             {
                 float scroll = MouseScrollPatch.LastScrollDelta;
@@ -78,6 +93,7 @@ namespace ValheimRadioMod
         public string GetHoverText()
         {
             hoverEndTime = Time.time + 0.2f;
+            HoveredRadios.Add(this);
 
             string status = IsOn ? "An" : "Aus";
             return $"Radio ({status})\n" +

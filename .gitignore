@@ -376,5 +376,4 @@ Environment.props
 
 # not the generated dll for thunderstore
 */Package/plugins/*
-/JotunnModStub/Package/Audio/The Eminem Show
-/JotunnModStub/Package/Audio/Twilight of the Thundergod
+/JotunnModStub/Package/Audio/*
