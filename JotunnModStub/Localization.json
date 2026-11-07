@@ -1,20 +1,34 @@
 {
-    "English": {
-        "radio_name": "Radio",
-            "radio_on": "On",
-                "radio_off": "Off",
-                    "radio_toggle": "Toggle",
-                        "radio_next_station": "Next station",
-                            "radio_volume_down": "Volume down",
-                                "radio_volume_up": "Volume up"
-    },
-    "German": {
-        "radio_name": "Radio",
-            "radio_on": "An",
-                "radio_off": "Aus",
-                    "radio_toggle": "An/Aus",
-                        "radio_next_station": "Sender wechseln",
-                            "radio_volume_down": "Leiser",
-                                "radio_volume_up": "Lauter"
-    }
+  "English": {
+    "radio_name": "Radio",
+    "radio_on": "On",
+    "radio_off": "Off",
+    "radio_toggle": "Toggle",
+    "radio_next_station": "Next station",
+    "radio_volume": "Volume",
+    "radio_group": "Group",
+    "radio_no_group": "None",
+    "radio_set_group": "Set group",
+    "radio_loading_wait": "Please wait...",
+    "radio_loading_stations": "Your radio stations are being loaded.",
+    "radio_loading_station": "Station {0}/{1}: {2}",
+    "radio_loading_track": "Track {0}/{1}: {2}",
+    "radio_mouse_wheel":  "Mouse wheel"
+  },
+  "German": {
+    "radio_name": "Radio",
+    "radio_on": "An",
+    "radio_off": "Aus",
+    "radio_toggle": "An/Aus",
+    "radio_next_station": "Sender wechseln",
+    "radio_volume": "Lautstärke",
+    "radio_group": "Gruppe",
+    "radio_no_group": "Keine",
+    "radio_set_group": "Gruppe setzen",
+    "radio_loading_wait": "Bitte warten...",
+    "radio_loading_stations": "Ihre Radiosender werden geladen.",
+    "radio_loading_station": "Sender {0}/{1}: {2}",
+    "radio_loading_track": "Track {0}/{1}: {2}",
+    "radio_mouse_wheel": "Mausrad"
+  }
 }

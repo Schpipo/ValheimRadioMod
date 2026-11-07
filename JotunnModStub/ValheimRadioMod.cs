@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using HarmonyLib;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -38,8 +39,22 @@ namespace ValheimRadioMod
             AudioManager.Instance.LoadStations(modPath);
 
             AddRadioPiece();
+            // main screen radio station loading UI
+            var go = new GameObject("RadioLoadingUI");
+            go.AddComponent<RadioLoadingUI>();
+            DontDestroyOnLoad(go);
+            // doppelte Funktion von weiter oben, auskommentiert
+            // Harmony.CreateAndPatchAll(typeof(ValheimRadioMod).Assembly);
         }
-
+        // Patch hier einfügen
+        [HarmonyPatch(typeof(Player), "StartEmote")]
+        private static class BlockEmoteOnRadio
+        {
+            static bool Prefix()
+            {
+                return !RadioBehaviour.IsAnyHovered;
+            }
+        }
         private void LoadLocalization()
         {
             string modPath = Path.GetDirectoryName(Info.Location);

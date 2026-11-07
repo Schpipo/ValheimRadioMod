@@ -14,12 +14,15 @@ namespace ValheimRadioMod
 
         public string CurrentStation = "";
         public bool IsOn = true;
-        public float Volume = 0.8f;
+        public float Volume = 0.5f;
         public string Group = "";          // neu
 
         private AudioSource audioSource;
         private bool forceClipRefresh = false;
         private ZNetView znetView;
+        // declarations for short and long E
+        private float ePressTime = -1f;
+        private const float LongPressDuration = 0.6f;
 
         private void Awake()
         {
@@ -96,11 +99,40 @@ namespace ValheimRadioMod
             if (Time.time >= hoverEndTime)
                 HoveredRadios.Remove(this);
 
-            if (Time.time < hoverEndTime && ZInput.GetKeyDown(KeyCode.G))
+            // Stumm schalten bei Pause
+            audioSource.mute = Time.timeScale == 0f;
+            // E, E lang und Shift + E
+            if (Time.time < hoverEndTime && !TextInput.IsVisible())
             {
-                OpenGroupRename();
-                return; // verhindert, dass G weitergeht
+                if (ZInput.GetKeyDown(KeyCode.E))
+                    ePressTime = Time.time;
+
+                // Langes E → nach 1s einmal Sender wechseln
+                if (ZInput.GetKey(KeyCode.E) && ePressTime > 0f)
+                {
+                    if (Time.time - ePressTime >= LongPressDuration)
+                    {
+                        CycleStation();
+                        ePressTime = -1f; // nur einmal
+                    }
+                }
+
+                // Kurzes E → nur beim Loslassen, wenn nicht lange gehalten
+                if (ZInput.GetKeyUp(KeyCode.E))
+                {
+                    if (ePressTime > 0f && Time.time - ePressTime < LongPressDuration)
+                        SetOn(!IsOn);
+                    ePressTime = -1f;
+                }
+
+                // Shift + E → Gruppe
+                if (ZInput.GetKeyDown(KeyCode.E) && (ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift)))
+                {
+                    OpenGroupRename();
+                    ePressTime = -1f;
+                }
             }
+
             // ZDO-Änderungen von anderen Clients übernehmen
             if (znetView != null && znetView.IsValid())
                 LoadFromZDO();
@@ -134,7 +166,7 @@ namespace ValheimRadioMod
                 float scroll = MouseScrollPatch.LastScrollDelta;
                 if (scroll != 0f)
                 {
-                    SetVolume(Volume + scroll * 0.05f);
+                    SetVolume(Volume + scroll * 0.5f);
                     MouseScrollPatch.LastScrollDelta = 0f;
                 }
             }
@@ -142,7 +174,7 @@ namespace ValheimRadioMod
         }
         private void OpenGroupRename()
         {
-            TextInput.instance.RequestText(this, "$piece_portal_tag", 20); // 20 Zeichen Limit, Titel wie bei Portalen
+            TextInput.instance.RequestText(this, "$radio_group", 20);
         }
 
         public string GetText()
@@ -159,24 +191,27 @@ namespace ValheimRadioMod
             hoverEndTime = Time.time + 0.2f;
             HoveredRadios.Add(this);
 
-            string status = IsOn ? "An" : "Aus";
-            string trackInfo = "";
-            string groupInfo = string.IsNullOrEmpty(Group) ? "" : $"\nGruppe: {Group}";
+            string status = IsOn ? Localization.instance.Localize("$radio_on") : Localization.instance.Localize("$radio_off");
+            string groupDisplay = string.IsNullOrEmpty(Group)
+                ? Localization.instance.Localize("$radio_no_group")
+                : Group;
 
+            string trackInfo = "";
             if (IsOn && AudioManager.Instance != null && !string.IsNullOrEmpty(CurrentStation))
             {
                 var (clip, _) = AudioManager.Instance.GetCurrentPlayback(CurrentStation);
                 if (clip != null)
                 {
                     string cleanName = CleanTrackName(clip.name);
-                    trackInfo = $"\nSender: {CurrentStation}\nTrack: {cleanName}";
+                    trackInfo = $"\n{CurrentStation}\n{cleanName}";
                 }
             }
 
-            return $"Radio ({status}){groupInfo}{trackInfo}\n" +
-                   $"[<color=yellow><b>E</b></color>] An/Aus\n" +
-                   $"[<color=yellow><b>Shift + E</b></color>] Sender wechseln\n" +
-                   $"[<color=yellow><b>Mausrad</b></color>] Lautstärke ({Volume:P0})";
+            return $"{Localization.instance.Localize("$radio_name")} ({status}){trackInfo}\n" +
+               $"[<color=yellow><b>E</b></color>] {Localization.instance.Localize("$radio_toggle")}\n" +
+               $"[<color=yellow><b>E (lang)</b></color>] {Localization.instance.Localize("$radio_next_station")}\n" +
+               $"[<color=yellow><b>Shift + E</b></color>] {Localization.instance.Localize("$radio_group")}: {groupDisplay}\n" +
+               $"[<color=yellow><b>{Localization.instance.Localize("$radio_mouse_wheel")}</b></color>] {Localization.instance.Localize("$radio_volume")} ({Volume:P0})";
         }
 
         public string GetHoverName() => "Radio";
@@ -184,17 +219,8 @@ namespace ValheimRadioMod
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (hold) return false;
-
-            if (alt)
-            {
-                CycleStation();
-            }
-            else
-            {
-                SetOn(!IsOn);
-            }
-            return true;
+            // alles wird in Update behandelt
+            return false;
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
@@ -239,6 +265,21 @@ namespace ValheimRadioMod
         {
             Group = group ?? "";
             SaveToZDO();
+
+            if (string.IsNullOrEmpty(Group)) return;
+
+            // Einstellungen von einem bestehenden Radio der Gruppe übernehmen
+            foreach (var radio in AllRadios)
+            {
+                if (radio == this || radio.Group != Group) continue;
+
+                IsOn = radio.IsOn;
+                Volume = radio.Volume;
+                CurrentStation = radio.CurrentStation;
+                forceClipRefresh = true;
+                SaveToZDO();
+                break; // einmal reicht
+            }
         }
 
         private void SyncGroup()

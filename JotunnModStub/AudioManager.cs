@@ -18,8 +18,15 @@ namespace ValheimRadioMod
         private Dictionary<string, List<AudioClip>> stationClips = new();
         private Dictionary<string, List<float>> stationDurations = new();
         private Dictionary<string, float> stationTotalDuration = new();
-
         public IReadOnlyCollection<string> StationNames => stationFiles.Keys;
+        // tracking loading progress
+        public int TotalStations { get; private set; }
+        public int LoadedStations { get; private set; }
+        public int CurrentStationTracks { get; private set; }
+        public int CurrentTrackIndex { get; private set; }
+        public string CurrentStationName { get; private set; } = "";
+        public string CurrentTrackName { get; private set; } = "";
+        public bool IsLoading { get; private set; }
 
         private void Awake()
         {
@@ -72,11 +79,18 @@ namespace ValheimRadioMod
 
             Jotunn.Logger.LogInfo("Starting full station load...");
 
+            IsLoading = true;
+            TotalStations = stationFiles.Count;
+            LoadedStations = 0;
+
             foreach (var station in stationFiles.Keys)
             {
+                CurrentStationName = station;
                 yield return StartCoroutine(LoadEntireStation(station));
-                yield return new WaitForSeconds(0.3f);
+                LoadedStations++;
+                yield return new WaitForSeconds(0.1f);
             }
+            IsLoading = false;
 
             Jotunn.Logger.LogInfo("All stations loaded.");
         }
@@ -85,9 +99,11 @@ namespace ValheimRadioMod
         {
             var files = stationFiles[station];
             float total = 0f;
-
+            CurrentStationTracks = files.Count;
             for (int i = 0; i < files.Count; i++)
             {
+                CurrentTrackIndex = i + 1;
+                CurrentTrackName = Path.GetFileNameWithoutExtension(files[i]);
                 string path = files[i];
                 string url = "file://" + path.Replace("\\", "/");
 
