@@ -72,6 +72,15 @@
   <ItemGroup>
     <PackageReference Include="HarmonyX" Version="2.16.1" />
     <PackageReference Include="JotunnLib" Version="2.30.2" />
+	<PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NVorbis" Version="0.10.5" /> <!-- optional, für OGG -->
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="NAudio">
+    <HintPath>$(NuGetPackageRoot)naudio\2.2.1\lib\net472\NAudio.dll</HintPath>
+    <Private>True</Private>
+    </Reference>
   </ItemGroup>
 
   <PropertyGroup>

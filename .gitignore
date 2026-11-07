@@ -376,4 +376,7 @@ Environment.props
 
 # not the generated dll for thunderstore
 */Package/plugins/*
+
+# Jotunn stuff
 /JotunnModStub/Package/Audio/*
+/JotunnModStubUnity/*

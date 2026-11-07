@@ -55,6 +55,7 @@ if ($Target.Equals("Debug")) {
 	Copy-Item -Path "$TargetPath\Package\icon.png" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\Package\Audio" -Destination "$plug" -Recurse -Force
 	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\radio" -Destination "$plug" -Force
 }
 
 if($Target.Equals("Release")) {
