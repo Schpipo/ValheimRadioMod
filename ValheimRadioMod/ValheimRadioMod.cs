@@ -4,7 +4,7 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using SimpleJson; // falls vorhanden, sonst manuelles Parsen
+using SimpleJson;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -39,14 +39,11 @@ namespace ValheimRadioMod
             AudioManager.Instance.LoadStations(modPath);
 
             AddRadioPiece();
-            // main screen radio station loading UI
+            // Main screen radio station loading UI
             var go = new GameObject("RadioLoadingUI");
             go.AddComponent<RadioLoadingUI>();
             DontDestroyOnLoad(go);
-            // doppelte Funktion von weiter oben, auskommentiert
-            // Harmony.CreateAndPatchAll(typeof(ValheimRadioMod).Assembly);
         }
-        // Patch hier einfügen
         [HarmonyPatch(typeof(Player), "StartEmote")]
         private static class BlockEmoteOnRadio
         {
@@ -87,26 +84,16 @@ namespace ValheimRadioMod
 
         private void AddRadioPiece()
         {
-            //// Create a simple empty cube prefab
-            //GameObject radioPrefab = PrefabManager.Instance.CreateEmptyPrefab("piece_radio_cube");
-
             string modPath = Path.GetDirectoryName(Info.Location);
             AssetBundle bundle = AssetUtils.LoadAssetBundle(Path.Combine(modPath, "radio"));
-            GameObject radioPrefab = bundle.LoadAsset<GameObject>("radio"); // Name des Prefabs prüfen
-
-            // GameObject radioPrefab = bundle.LoadAsset<GameObject>("Radio");
-
-            // ZNetView hinzufügen (wichtig für Persistenz & Abbau)
+            GameObject radioPrefab = bundle.LoadAsset<GameObject>("radio"); // Prefab name check
+            // Add ZNetview
             if (radioPrefab.GetComponent<ZNetView>() == null)
             {
                 var znet = radioPrefab.AddComponent<ZNetView>();
                 znet.m_persistent = true;
             }
-
-            
-
             radioPrefab.AddComponent<RadioBehaviour>();
-
             Piece piece = radioPrefab.AddComponent<Piece>();
             piece.m_name = "Radio";
             piece.m_description = "A radio that plays music.";
@@ -134,7 +121,6 @@ namespace ValheimRadioMod
             // Register the piece
             PieceManager.Instance.AddPiece(new CustomPiece(radioPrefab, false, config));
         }
-        // Beispiel in einem Patch oder in RadioBehaviour / einem eigenen Behaviour:
         private void Update()
         {
             if (!firstTracksStarted && ZNet.instance != null && Player.m_localPlayer != null)

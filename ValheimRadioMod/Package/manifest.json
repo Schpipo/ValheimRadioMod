@@ -1,6 +1,6 @@
 ﻿{
   "name": "ValheimRadioMod",
-  "description": "",
+  "description": "A buildable radio, that plays the stations in your Audio subfolders",
   "version_number": "0.0.1",
   "website_url": "",
   "dependencies": [

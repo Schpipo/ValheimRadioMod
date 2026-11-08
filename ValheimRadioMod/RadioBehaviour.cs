@@ -36,7 +36,7 @@ namespace ValheimRadioMod
             znetView = GetComponent<ZNetView>();
             AllRadios.Add(this);
 
-            // Shader-Fix (wie bisher)
+            // shader fix
             Shader pieceShader = Shader.Find("Custom/Piece");
             if (pieceShader != null)
             {
@@ -99,25 +99,25 @@ namespace ValheimRadioMod
             if (Time.time >= hoverEndTime)
                 HoveredRadios.Remove(this);
 
-            // Stumm schalten bei Pause
+            // mute when game is paused
             audioSource.mute = Time.timeScale == 0f;
-            // E, E lang und Shift + E
+            // E-Handling: Short E for on/off, Long E for station change, Shift + E for group rename
             if (Time.time < hoverEndTime && !TextInput.IsVisible())
             {
                 if (ZInput.GetKeyDown(KeyCode.E))
                     ePressTime = Time.time;
 
-                // Langes E → nach 1s einmal Sender wechseln
+                // long E - > station change after 1s
                 if (ZInput.GetKey(KeyCode.E) && ePressTime > 0f)
                 {
                     if (Time.time - ePressTime >= LongPressDuration)
                     {
                         CycleStation();
-                        ePressTime = -1f; // nur einmal
+                        ePressTime = -1f; // only once
                     }
                 }
 
-                // Kurzes E → nur beim Loslassen, wenn nicht lange gehalten
+                // short E - > on/off
                 if (ZInput.GetKeyUp(KeyCode.E))
                 {
                     if (ePressTime > 0f && Time.time - ePressTime < LongPressDuration)
@@ -125,7 +125,7 @@ namespace ValheimRadioMod
                     ePressTime = -1f;
                 }
 
-                // Shift + E → Gruppe
+                // Shift + E -> group rename
                 if (ZInput.GetKeyDown(KeyCode.E) && (ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift)))
                 {
                     OpenGroupRename();
@@ -133,7 +133,7 @@ namespace ValheimRadioMod
                 }
             }
 
-            // ZDO-Änderungen von anderen Clients übernehmen
+            // load ZDO from network if not yet loaded
             if (znetView != null && znetView.IsValid())
                 LoadFromZDO();
 
@@ -219,7 +219,6 @@ namespace ValheimRadioMod
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            // alles wird in Update behandelt
             return false;
         }
 
@@ -236,7 +235,7 @@ namespace ValheimRadioMod
             SetStation(newStation);
         }
 
-        // ---------- Gruppen-Sync ----------
+        // ---------- group sync ----------
 
         public void SetOn(bool value)
         {
@@ -268,7 +267,7 @@ namespace ValheimRadioMod
 
             if (string.IsNullOrEmpty(Group)) return;
 
-            // Einstellungen von einem bestehenden Radio der Gruppe übernehmen
+            // use settings from first other radio in group
             foreach (var radio in AllRadios)
             {
                 if (radio == this || radio.Group != Group) continue;
@@ -278,7 +277,7 @@ namespace ValheimRadioMod
                 CurrentStation = radio.CurrentStation;
                 forceClipRefresh = true;
                 SaveToZDO();
-                break; // einmal reicht
+                break;
             }
         }
 

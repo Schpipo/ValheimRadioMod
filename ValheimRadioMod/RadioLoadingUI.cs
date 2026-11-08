@@ -21,7 +21,7 @@ public class RadioLoadingUI : MonoBehaviour
         GUI.color = oldColor;
 
         GUILayout.BeginArea(new Rect(x, y, width, height));
-        GUILayout.Space(12);   // <-- hier den Text nach unten schieben (Wert anpassen)
+        GUILayout.Space(12);   // text offset from box border
 
         var centerStyle = new GUIStyle(GUI.skin.label)
         {
@@ -42,7 +42,7 @@ public class RadioLoadingUI : MonoBehaviour
         GUILayout.Label(Localization.instance.Localize("$radio_loading_stations"), centerStyle);
 
         Rect barRect = GUILayoutUtility.GetRect(width - 40, 22);
-        barRect.x += 10; // leicht einrücken
+        barRect.x += 10;
         GUI.Box(barRect, "");
         GUI.Box(new Rect(barRect.x, barRect.y, barRect.width * progress, barRect.height), "");
 

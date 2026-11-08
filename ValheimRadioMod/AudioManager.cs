@@ -13,7 +13,6 @@ namespace ValheimRadioMod
     internal class AudioManager : MonoBehaviour
     {
         public static AudioManager Instance { get; private set; }
-
         private Dictionary<string, List<string>> stationFiles = new();
         private Dictionary<string, List<AudioClip>> stationClips = new();
         private Dictionary<string, List<float>> stationDurations = new();
@@ -74,7 +73,7 @@ namespace ValheimRadioMod
 
         private IEnumerator LoadAllTracksDelayed()
         {
-            // Warten bis das Spiel weitgehend geladen ist
+            // wait for a few seconds to let the game finish loading before starting to load audio
             yield return new WaitForSeconds(10f);
 
             Jotunn.Logger.LogInfo("Starting full station load...");

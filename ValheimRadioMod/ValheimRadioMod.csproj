@@ -27,11 +27,6 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <!--<ItemGroup>
-    <None Remove="Localization.json" />
-    <None Remove="Package\icon.png" />
-  </ItemGroup>-->
-
   <ItemGroup>
     <Content Include="Localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

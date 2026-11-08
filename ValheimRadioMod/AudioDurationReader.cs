@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
 
-public static class AudioDurationReader
+public static class 
+    DurationReader
 {
     public static float GetDuration(string path)
     {
@@ -67,7 +68,7 @@ public static class AudioDurationReader
         using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
         using var br = new BinaryReader(fs);
 
-        // ID3 überspringen
+        // ID3 skip
         if (fs.Length > 10 && new string(br.ReadChars(3)) == "ID3")
         {
             br.ReadBytes(3);
