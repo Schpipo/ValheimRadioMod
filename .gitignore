@@ -11,7 +11,7 @@
 *.sln.docstates
 
 # Audio sub-folders
-Audio/*/
+ValheimRadioMod/Package/Audio/*/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -378,5 +378,4 @@ Environment.props
 */Package/plugins/*
 
 # Jotunn stuff
-/JotunnModStub/Package/Audio/*
 /JotunnModStubUnity/*
