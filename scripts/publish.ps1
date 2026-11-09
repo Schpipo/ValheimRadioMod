@@ -56,6 +56,13 @@ if ($Target.Equals("Debug")) {
 	Copy-Item -Path "$ProjectPath\Package\Audio" -Destination "$plug" -Recurse -Force
 	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\Package\radio" -Destination "$plug" -Force
+	# NAudio + Abhängigkeiten mitkopieren
+	Get-ChildItem -Path $TargetPath -Filter "*.dll" | 
+		Where-Object { $_.Name -ne "$name.dll" -and $_.Name -match "NAudio|NVorbis" } | 
+		ForEach-Object {
+			Copy-Item -Path $_.FullName -Destination $plug -Force
+			Write-Host "Copied dependency: $($_.Name)"
+    }
 }
 
 if($Target.Equals("Release")) {

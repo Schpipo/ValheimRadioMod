@@ -9,7 +9,7 @@ The mod is a work in progress and I will be adding more features as time goes on
 
 ## Features
 Reads all subfolders in the Audio folder of this mod and plays mp3, ogg or wav files found in those folders.
-To accomodate the loading times of many audio files, the mod waits 10s after the game has loaded before it starts to read the audio files.
+To accommodate the loading times of many audio files, the mod waits 10s after the game has loaded before it starts to read the audio files.
 A GUI will show the progress of the loading and will show the number of files found and loaded.
 Playback is synced by using the JotunnModStub's network sync features.
 
