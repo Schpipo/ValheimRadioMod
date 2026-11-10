@@ -13,7 +13,8 @@
     "radio_loading_stations": "Your radio stations are being loaded.",
     "radio_loading_station": "Station {0}/{1}: {2}",
     "radio_loading_track": "Track {0}/{1}: {2}",
-    "radio_mouse_wheel":  "Mouse wheel"
+    "radio_mouse_wheel": "Mouse wheel",
+    "radio_e_hold" :  "Hold E"
   },
   "German": {
     "radio_name": "Radio",
@@ -29,6 +30,7 @@
     "radio_loading_stations": "Ihre Radiosender werden geladen.",
     "radio_loading_station": "Sender {0}/{1}: {2}",
     "radio_loading_track": "Track {0}/{1}: {2}",
-    "radio_mouse_wheel": "Mausrad"
+    "radio_mouse_wheel": "Mausrad",
+    "radio_e_hold": "Halte E"
   }
 }

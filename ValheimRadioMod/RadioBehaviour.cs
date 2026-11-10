@@ -210,7 +210,7 @@ namespace ValheimRadioMod
             return $"<size=16><b>{Localization.instance.Localize("$radio_name")}</b></size> ({status}){trackInfo}\n" +
                    $"<color=#888888>────────────────</color>\n" +
                    $"[<color=yellow><b>E</b></color>] {Localization.instance.Localize("$radio_toggle")}\n" +
-                   $"[<color=yellow><b>E (lang)</b></color>] {Localization.instance.Localize("$radio_next_station")}\n" +
+                   $"[<color=yellow><b>{Localization.instance.Localize("$radio_e_hold")}</b></color>] {Localization.instance.Localize("$radio_next_station")}\n" +
                    $"[<color=yellow><b>Shift + E</b></color>] {Localization.instance.Localize("$radio_group")}: {groupDisplay}\n" +
                    $"[<color=yellow><b>{Localization.instance.Localize("$radio_mouse_wheel")}</b></color>] {Localization.instance.Localize("$radio_volume")} ({Volume:P0})";
         }
