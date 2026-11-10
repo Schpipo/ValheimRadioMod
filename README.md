@@ -1,13 +1,25 @@
-﻿# ValheimRadioMod
+# ValheimRadioMod
 This is my first mod and I used AI for code writing, bug fixing and Unity usage.
 Using the JotunnModStub as a base for the VS project and the Unity asset.
 The radio was hand modelled in Blender and some texture work done with gimp.
 The mod is a work in progress and I will be adding more features as time goes on.
 
 ## Installation (manual)
-Install via Thunderstore
+For automated install use Thunderstore
 For manual installation, place in plugins folder and add your subfolders with music to the "Audio" folder.
 
+Audio Folder = ...\Valheim\BepInEx\plugins\ValheimRadioMod\Audio:
+
+Audio
+└──	Station 1
+	├──	Track 1.mp3
+	├──	Track 2.mp3
+	└──	Track 3.mp3
+└──	Station 2
+	├──	Track 1.ogg
+	├──	Track 2.ogg
+	└──	Track 3.ogg
+	
 ## Features
 Reads all subfolders in the Audio folder of this mod and plays MP3, OGG or WAV files found in those folders.
 To accommodate the loading times of many audio files, the mod waits 10s after the game has loaded before it starts to read the audio files.

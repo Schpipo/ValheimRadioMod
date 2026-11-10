@@ -17,7 +17,7 @@ namespace ValheimRadioMod
     {
         public const string PluginGUID = "com.schpipo.ValheimRadioMod";
         public const string PluginName = "ValheimRadioMod";
-        public const string PluginVersion = "0.0.1";
+        public const string PluginVersion = "0.1.0";
         private bool firstTracksStarted = false;
 
         private void Awake()
@@ -102,7 +102,7 @@ namespace ValheimRadioMod
 
             // Configure the piece
             // string modPath = Path.GetDirectoryName(Info.Location);
-            Sprite icon = AssetUtils.LoadSpriteFromFile(Path.Combine(modPath, "icon.png"));
+            Sprite icon = AssetUtils.LoadSpriteFromFile(Path.Combine(modPath, "icon_build.png"));
 
             PieceConfig config = new PieceConfig
             {

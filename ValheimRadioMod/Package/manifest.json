@@ -1,8 +1,9 @@
 ﻿{
   "name": "ValheimRadioMod",
   "description": "A buildable radio, that plays the stations in your Audio subfolders",
-  "version_number": "0.0.1",
+  "version_number": "0.1.0",
   "website_url": "https://github.com/Schpipo/ValheimRadioMod",
+  "description" : "Placeable radio that plays your own music",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2333",
     "ValheimModding-Jotunn-2.30.2"

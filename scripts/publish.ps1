@@ -52,29 +52,40 @@ if ($Target.Equals("Debug")) {
     Copy-Item -Path "$TargetPath\$name.dll" -Destination "$plug" -Force
     Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$plug" -Force
     Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$plug" -Force
-	Copy-Item -Path "$TargetPath\Package\icon.png" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\Package\Audio" -Destination "$plug" -Recurse -Force
+	Copy-Item -Path "$ProjectPath\icon_build.png" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\radio" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\Package\radio" -Destination "$plug" -Force
-	# NAudio + Abhängigkeiten mitkopieren
-	Get-ChildItem -Path $TargetPath -Filter "*.dll" | 
-		Where-Object { $_.Name -ne "$name.dll" -and $_.Name -match "NAudio|NVorbis" } | 
-		ForEach-Object {
-			Copy-Item -Path $_.FullName -Destination $plug -Force
-			Write-Host "Copied dependency: $($_.Name)"
-    }
 }
 
-if($Target.Equals("Release")) {
+if ($Target.Equals("Release")) {
     Write-Host "Packaging for ThunderStore..."
-    $Package="Package"
-    $PackagePath="$ProjectPath\$Package"
+    
+    $PackagePath = Join-Path $ProjectPath "Package"
+    $pluginsPath = Join-Path $PackagePath "RadioMod"
 
-    Write-Host "$PackagePath\$TargetAssembly"
-    New-Item -Type Directory -Path "$PackagePath\plugins" -Force
-    Copy-Item -Path "$TargetPath\$TargetAssembly" -Destination "$PackagePath\plugins\$TargetAssembly" -Force
-    Copy-Item -Path "$ProjectPath\README.md" -Destination "$PackagePath\README.md" -Force
-    Compress-Archive -Path "$PackagePath\*" -DestinationPath "$TargetPath\$name.zip" -Force
+    # Alten plugins-Ordner löschen und neu anlegen
+    if (Test-Path $pluginsPath) { 
+        Remove-Item $pluginsPath -Recurse -Force 
+    }
+    New-Item -ItemType Directory -Path $pluginsPath -Force | Out-Null
+	
+	# Leeren Audio-Ordner für die Nutzer
+    New-Item -ItemType Directory -Path (Join-Path $pluginsPath "Audio") -Force | Out-Null
+
+    # Dateien kopieren
+    Copy-Item "$TargetPath\$TargetAssembly" "$pluginsPath\$TargetAssembly" -Force
+    Copy-Item "$ProjectPath\Localization.json" $pluginsPath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\radio" $pluginsPath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\icon_build.png" $pluginsPath -Force -ErrorAction SilentlyContinue
+	Copy-Item "$ProjectPath\icon.png" $PackagePath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\README.md" $pluginsPath -Force -ErrorAction SilentlyContinue
+
+    # Zip erstellen
+    $zipPath = Join-Path $TargetPath "$name.zip"
+    if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+    
+    Compress-Archive -Path "$PackagePath\*" -DestinationPath $zipPath -Force
+    Write-Host "Created package: $zipPath"
 }
 
 # Pop Location

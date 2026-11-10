@@ -31,7 +31,7 @@
     <Content Include="Localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Package\icon.png">
+    <Content Include="icon_build.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
