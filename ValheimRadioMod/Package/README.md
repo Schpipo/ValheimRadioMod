@@ -35,6 +35,7 @@ Assigning a group to a station will load the settings of any other member and sy
 
 ## Changelog
 0.1.0 first publication for multiplayer testing
+0.1.1 added MonoMod.Backports.dll to mod zip
 
 ## Known issues
 NAudio is not in use yet, so the mod will not work on Linux or MacOS. I will be adding NAudio support in the future.

@@ -17,7 +17,7 @@ namespace ValheimRadioMod
     {
         public const string PluginGUID = "com.schpipo.ValheimRadioMod";
         public const string PluginName = "ValheimRadioMod";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.1.1";
         private bool firstTracksStarted = false;
 
         private void Awake()
