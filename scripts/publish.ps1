@@ -56,6 +56,7 @@ if ($Target.Equals("Debug")) {
 	Copy-Item -Path "$ProjectPath\radio" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\MonoMod.Backports.dll" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\MonoMod.ILHelpers.dll" -Destination "$plug" -Force
 }
 
 if ($Target.Equals("Release")) {
@@ -81,6 +82,7 @@ if ($Target.Equals("Release")) {
 	Copy-Item "$ProjectPath\icon.png" $PackagePath -Force -ErrorAction SilentlyContinue
     Copy-Item "$ProjectPath\README.md" $pluginsPath -Force -ErrorAction SilentlyContinue
 	Copy-Item "$ProjectPath\MonoMod.Backports.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
+	Copy-Item "$ProjectPath\MonoMod.ILHelpers.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
 
     # Zip erstellen
     $zipPath = Join-Path $TargetPath "$name.zip"
