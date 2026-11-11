@@ -15,14 +15,16 @@ namespace ValheimRadioMod
         public string CurrentStation = "";
         public bool IsOn = true;
         public float Volume = 0.5f;
-        public string Group = "";          // neu
+        public string Group = "";
 
         private AudioSource audioSource;
         private bool forceClipRefresh = false;
         private ZNetView znetView;
-        // declarations for short and long E
         private float ePressTime = -1f;
         private const float LongPressDuration = 0.6f;
+
+        private bool wasOn = false;
+        private bool initialized = false;
 
         private void Awake()
         {
@@ -36,7 +38,6 @@ namespace ValheimRadioMod
             znetView = GetComponent<ZNetView>();
             AllRadios.Add(this);
 
-            // shader fix
             Shader pieceShader = Shader.Find("Custom/Piece");
             if (pieceShader != null)
             {
@@ -56,6 +57,8 @@ namespace ValheimRadioMod
         private void Start()
         {
             LoadFromZDO();
+            wasOn = IsOn;
+            initialized = true;
 
             if (string.IsNullOrEmpty(CurrentStation) && AudioManager.Instance != null && AudioManager.Instance.StationNames.Count > 0)
             {
@@ -66,6 +69,9 @@ namespace ValheimRadioMod
                 }
                 SaveToZDO();
             }
+
+            if (IsOn)
+                forceClipRefresh = true;
         }
 
         private void OnDestroy()
@@ -99,25 +105,22 @@ namespace ValheimRadioMod
             if (Time.time >= hoverEndTime)
                 HoveredRadios.Remove(this);
 
-            // mute when game is paused
             audioSource.mute = Time.timeScale == 0f;
-            // E-Handling: Short E for on/off, Long E for station change, Shift + E for group rename
+
             if (Time.time < hoverEndTime && !TextInput.IsVisible())
             {
                 if (ZInput.GetKeyDown(KeyCode.E))
                     ePressTime = Time.time;
 
-                // long E - > station change after 1s
                 if (ZInput.GetKey(KeyCode.E) && ePressTime > 0f)
                 {
                     if (Time.time - ePressTime >= LongPressDuration)
                     {
                         CycleStation();
-                        ePressTime = -1f; // only once
+                        ePressTime = -1f;
                     }
                 }
 
-                // short E - > on/off
                 if (ZInput.GetKeyUp(KeyCode.E))
                 {
                     if (ePressTime > 0f && Time.time - ePressTime < LongPressDuration)
@@ -125,7 +128,6 @@ namespace ValheimRadioMod
                     ePressTime = -1f;
                 }
 
-                // Shift + E -> group rename
                 if (ZInput.GetKeyDown(KeyCode.E) && (ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift)))
                 {
                     OpenGroupRename();
@@ -133,9 +135,14 @@ namespace ValheimRadioMod
                 }
             }
 
-            // load ZDO from network if not yet loaded
             if (znetView != null && znetView.IsValid())
                 LoadFromZDO();
+
+            if (initialized && IsOn != wasOn)
+            {
+                forceClipRefresh = true;
+                wasOn = IsOn;
+            }
 
             if (!IsOn || AudioManager.Instance == null)
             {
@@ -147,7 +154,7 @@ namespace ValheimRadioMod
             var (clip, position) = AudioManager.Instance.GetCurrentPlayback(CurrentStation);
             if (clip == null) return;
 
-            if (audioSource.clip != clip || forceClipRefresh)
+            if (audioSource.clip != clip || forceClipRefresh || !audioSource.isPlaying)
             {
                 audioSource.clip = clip;
                 audioSource.time = position;
@@ -166,26 +173,21 @@ namespace ValheimRadioMod
                 float scroll = MouseScrollPatch.LastScrollDelta;
                 if (scroll != 0f)
                 {
-                    SetVolume(Volume + scroll * 0.5f);
+                    SetVolume(Volume + Mathf.Sign(scroll) * 0.05f);
                     MouseScrollPatch.LastScrollDelta = 0f;
                 }
             }
-            
         }
+
         private void OpenGroupRename()
         {
             TextInput.instance.RequestText(this, "$radio_group", 20);
         }
 
-        public string GetText()
-        {
-            return Group ?? "";
-        }
+        public string GetText() => Group ?? "";
 
-        public void SetText(string text)
-        {
-            SetGroup(text.Trim());
-        }
+        public void SetText(string text) => SetGroup(text.Trim());
+
         public string GetHoverText()
         {
             hoverEndTime = Time.time + 0.2f;
@@ -218,11 +220,7 @@ namespace ValheimRadioMod
         public string GetHoverName() => "Radio";
         public float GetHoverOffset() => 1.5f;
 
-        public bool Interact(Humanoid user, bool hold, bool alt)
-        {
-            return false;
-        }
-
+        public bool Interact(Humanoid user, bool hold, bool alt) => false;
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
 
         private void CycleStation()
@@ -236,10 +234,11 @@ namespace ValheimRadioMod
             SetStation(newStation);
         }
 
-        // ---------- group sync ----------
-
         public void SetOn(bool value)
         {
+            if (znetView != null && znetView.IsValid() && !znetView.IsOwner())
+                znetView.ClaimOwnership();
+
             IsOn = value;
             forceClipRefresh = true;
             SaveToZDO();
@@ -248,6 +247,9 @@ namespace ValheimRadioMod
 
         public void SetVolume(float value)
         {
+            if (znetView != null && znetView.IsValid() && !znetView.IsOwner())
+                znetView.ClaimOwnership();
+
             Volume = Mathf.Clamp01(value);
             SaveToZDO();
             SyncGroup();
@@ -255,6 +257,9 @@ namespace ValheimRadioMod
 
         public void SetStation(string station)
         {
+            if (znetView != null && znetView.IsValid() && !znetView.IsOwner())
+                znetView.ClaimOwnership();
+
             CurrentStation = station;
             forceClipRefresh = true;
             SaveToZDO();
@@ -263,12 +268,14 @@ namespace ValheimRadioMod
 
         public void SetGroup(string group)
         {
+            if (znetView != null && znetView.IsValid() && !znetView.IsOwner())
+                znetView.ClaimOwnership();
+
             Group = group ?? "";
             SaveToZDO();
 
             if (string.IsNullOrEmpty(Group)) return;
 
-            // use settings from first other radio in group
             foreach (var radio in AllRadios)
             {
                 if (radio == this || radio.Group != Group) continue;
@@ -280,6 +287,8 @@ namespace ValheimRadioMod
                 SaveToZDO();
                 break;
             }
+
+            SyncGroup();
         }
 
         private void SyncGroup()
@@ -289,6 +298,9 @@ namespace ValheimRadioMod
             foreach (var radio in AllRadios)
             {
                 if (radio == this || radio.Group != Group) continue;
+
+                if (radio.znetView != null && radio.znetView.IsValid() && !radio.znetView.IsOwner())
+                    radio.znetView.ClaimOwnership();
 
                 radio.IsOn = IsOn;
                 radio.Volume = Volume;
