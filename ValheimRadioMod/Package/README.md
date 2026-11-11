@@ -7,19 +7,18 @@ The mod is a work in progress and I will be adding more features as time goes on
 ## Installation (manual)  
 For automated install use Thunderstore  
 For manual installation, place RadioMod folder in your BepInEx/plugins folder.
-Add "Audio" folder to the RadioMod folder and add your audio files in subfolders.
 
 Audio Folder = ...\Valheim\BepInEx\plugins\ValheimRadioMod\Audio:  
 
 Audio  
-└──	Station 1  
-	├──	Track 1.mp3  
-	├──	Track 2.mp3  
-	└──	Track 3.mp3  
-└──	Station 2  
-	├──	Track 1.ogg  
-	├──	Track 2.ogg  
-	└──	Track 3.ogg  
+-- Station 1  
+---- Track 1.mp3  
+---- Track 2.mp3  
+---- Track 3.mp3  
+-- Station 2  
+---- Track 1.ogg  
+---- Track 2.ogg  
+---- Track 3.ogg  
 	
 ## Features  
 Reads all subfolders in the Audio folder of this mod and plays MP3, OGG or WAV files found in those folders.  
@@ -37,7 +36,7 @@ Assigning a group to a station will load the settings of any other member and sy
 ## Changelog  
 0.1.0 first publication for multiplayer testing  
 0.1.1 added MonoMod.Backports.dll to mod zip  
-0.1.12 also add MonoMod.ILHelpers.dll to mod zip, updated format  
+0.1.2 also add MonoMod.ILHelpers.dll to mod zip
 
 ## Known issues  
 NAudio is not in use yet, so the mod will not work on Linux or MacOS. I will be adding NAudio support in the future.  
