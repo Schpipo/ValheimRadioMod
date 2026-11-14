@@ -2,21 +2,26 @@
 This is my first mod and I used AI for code writing, bug fixing and Unity usage.  
 Using the JotunnModStub for the VS project and the Unity asset.  
 The radio was hand modelled in Blender and some texture work done with gimp.  
-The mod is a work in progress and I will be adding more features as time goes on.  
 
 ## Installation  
-### Thunderstore
+### Thunderstore  
 After installation, got to Thunderstore Mod manager settings and browse your Data folder.  
 Go to: ...\DataFolder\Valheim\profiles\Default\BepInEx\plugins\TeamSchpipo-ValheimRadioMod\  
 Here you can create your Audio folder and add your files in subfolders.  
 
-### Manual
+### Manual  
 For manual installation, place RadioMod folder in your BepInEx/plugins folder.  
 
 BepInEx is required for this mod to work. You can find it here:  
 https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/  
+
+**Start the game once to create the BepInEx folder structure.**  
+
 Jotunn is also required for this mod to work. You can find it here:  
 https://valheim.thunderstore.io/package/ValheimModding/Jotunn/  
+
+Download the latest RadioMod release from Github:  
+https://github.com/Schpipo/ValheimRadioMod  
 
 Create an Audio folder in the RadioMod folder.  
 Add your audio files in subfolders.  
@@ -62,10 +67,8 @@ Audio Folder = ...\Valheim\BepInEx\plugins\ValheimRadioMod\Audio:
 - Added (Xbox) controller support  
 - Added a GUI and list of groups with Home, Work and Travel as default suggestions  
 - Writing your own group name will add it the list of groups  
-#### 0.2.1
-- mod icon fix
-- updated readme with separate instructions for Thunderstore and manual installation
-
-You can find the github at: https://github.com/Schpipo/ValheimRadioMod  
+#### 0.2.1  
+- mod icon fix  
+- updated readme with separate instructions for Thunderstore and manual installation  
 ## Known issues  
 DPadUp still fires when selecting a group in the group dialog
