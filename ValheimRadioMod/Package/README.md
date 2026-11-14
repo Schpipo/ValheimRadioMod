@@ -5,8 +5,12 @@ The radio was hand modelled in Blender and some texture work done with gimp.
 The mod is a work in progress and I will be adding more features as time goes on.  
 
 ## Installation  
-For automated install use Thunderstore.  
+### Thunderstore
+After installation, got to Thunderstore Mod manager settings and browse your Data folder.  
+Go to: ...\DataFolder\Valheim\profiles\Default\BepInEx\plugins\TeamSchpipo-ValheimRadioMod\  
+Here you can create your Audio folder and add your files in subfolders.  
 
+### Manual
 For manual installation, place RadioMod folder in your BepInEx/plugins folder.  
 
 BepInEx is required for this mod to work. You can find it here:  
@@ -14,7 +18,7 @@ https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/
 Jotunn is also required for this mod to work. You can find it here:  
 https://valheim.thunderstore.io/package/ValheimModding/Jotunn/  
 
-You also need to create an Audio folder in the RadioMod folder.  
+Create an Audio folder in the RadioMod folder.  
 Add your audio files in subfolders.  
 Folder names will be used as station names.  
 Audio files will first be played in numerical and second in alphabetical order. 
@@ -42,7 +46,7 @@ Audio Folder = ...\Valheim\BepInEx\plugins\ValheimRadioMod\Audio:
 | Action | Keyboard | Controller |
 |--------|----------|------------|
 | On/Off | E | A |
-| Change Station | E (hold) | A (hold) |
+| Change Station | E (hold) | X |
 | Assign Group | Shift + E | Y |
 | Volume Control | Mouse wheel | A / Y (hold) |
 
@@ -58,6 +62,9 @@ Audio Folder = ...\Valheim\BepInEx\plugins\ValheimRadioMod\Audio:
 - Added (Xbox) controller support  
 - Added a GUI and list of groups with Home, Work and Travel as default suggestions  
 - Writing your own group name will add it the list of groups  
+#### 0.2.1
+- mod icon fix
+- updated readme with separate instructions for Thunderstore and manual installation
 
 You can find the github at: https://github.com/Schpipo/ValheimRadioMod  
 ## Known issues  
