@@ -17,20 +17,19 @@ namespace ValheimRadioMod
     {
         public const string PluginGUID = "com.schpipo.ValheimRadioMod";
         public const string PluginName = "ValheimRadioMod";
-        public const string PluginVersion = "0.1.2";
+        public const string PluginVersion = "0.2.0";
         private bool firstTracksStarted = false;
 
         private void Awake()
         {
             Jotunn.Logger.LogInfo("ValheimRadioMod has landed");
 
-            var harmony = new HarmonyLib.Harmony("com.schpipo.ValheimRadioMod");
+            var harmony = new Harmony("com.schpipo.ValheimRadioMod");
             MouseScrollPatch.ApplyPatch(harmony);
-            harmony.PatchAll();
+            harmony.PatchAll(typeof(ValheimRadioMod).Assembly);
 
             LoadLocalization();
 
-            // Create AudioManager
             GameObject audioManagerObj = new GameObject("RadioAudioManager");
             audioManagerObj.AddComponent<AudioManager>();
             DontDestroyOnLoad(audioManagerObj);
@@ -39,13 +38,27 @@ namespace ValheimRadioMod
             AudioManager.Instance.LoadStations(modPath);
 
             AddRadioPiece();
-            // Main screen radio station loading UI
+
             var go = new GameObject("RadioLoadingUI");
             go.AddComponent<RadioLoadingUI>();
             DontDestroyOnLoad(go);
+
+            var groupUi = new GameObject("GroupSelectionUI");
+            groupUi.AddComponent<GroupSelectionUI>();
+            DontDestroyOnLoad(groupUi);
         }
+
         [HarmonyPatch(typeof(Player), "StartEmote")]
         private static class BlockEmoteOnRadio
+        {
+            static bool Prefix()
+            {
+                return !RadioBehaviour.IsAnyHovered;
+            }
+        }
+
+        [HarmonyPatch(typeof(InventoryGui), "Show")]
+        private static class BlockInventoryOnRadioHover
         {
             static bool Prefix()
             {
@@ -86,22 +99,22 @@ namespace ValheimRadioMod
         {
             string modPath = Path.GetDirectoryName(Info.Location);
             AssetBundle bundle = AssetUtils.LoadAssetBundle(Path.Combine(modPath, "radio"));
-            GameObject radioPrefab = bundle.LoadAsset<GameObject>("radio"); // Prefab name check
-            // Add ZNetview
+            GameObject radioPrefab = bundle.LoadAsset<GameObject>("radio");
+
             if (radioPrefab.GetComponent<ZNetView>() == null)
             {
                 var znet = radioPrefab.AddComponent<ZNetView>();
                 znet.m_persistent = true;
             }
+
             radioPrefab.AddComponent<RadioBehaviour>();
+
             Piece piece = radioPrefab.AddComponent<Piece>();
             piece.m_name = "Radio";
             piece.m_description = "A radio that plays music.";
             piece.m_canBeRemoved = true;
             piece.m_enabled = true;
 
-            // Configure the piece
-            // string modPath = Path.GetDirectoryName(Info.Location);
             Sprite icon = AssetUtils.LoadSpriteFromFile(Path.Combine(modPath, "icon_build.png"));
 
             PieceConfig config = new PieceConfig
@@ -118,9 +131,9 @@ namespace ValheimRadioMod
             req.Recover = true;
             config.AddRequirement(req);
 
-            // Register the piece
             PieceManager.Instance.AddPiece(new CustomPiece(radioPrefab, false, config));
         }
+
         private void Update()
         {
             if (!firstTracksStarted && ZNet.instance != null && Player.m_localPlayer != null)

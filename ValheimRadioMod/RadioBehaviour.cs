@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ValheimRadioMod
 {
     public class RadioBehaviour : MonoBehaviour, Hoverable, Interactable, TextReceiver
     {
-        private static readonly HashSet<RadioBehaviour> AllRadios = new HashSet<RadioBehaviour>();
+        public static readonly HashSet<RadioBehaviour> AllRadios = new HashSet<RadioBehaviour>();
         private static readonly HashSet<RadioBehaviour> HoveredRadios = new HashSet<RadioBehaviour>();
 
         public static bool IsAnyHovered => HoveredRadios.Count > 0;
@@ -25,6 +26,27 @@ namespace ValheimRadioMod
 
         private bool wasOn = false;
         private bool initialized = false;
+        private static bool lastInputWasController = false;
+        private float lastInputSwitchTime = 0f;
+        private const float InputSwitchDelay = 0.3f;
+
+        public float HoverEndTime => hoverEndTime;
+        private float lastVolumeTick = 0f;
+        private const float VolumeHoldDelay = 0.6f;
+        private const float VolumeTickInterval = 0.6f;
+        private float aPressTime = -1f;
+        private float yPressTime = -1f;
+        private float lastStationChangeTime = 0f;
+
+        public static RadioBehaviour GetFirstHovered()
+        {
+            foreach (var r in AllRadios)
+            {
+                if (r != null && Time.time < r.hoverEndTime)
+                    return r;
+            }
+            return null;
+        }
 
         private void Awake()
         {
@@ -69,7 +91,6 @@ namespace ValheimRadioMod
                 }
                 SaveToZDO();
             }
-
             if (IsOn)
                 forceClipRefresh = true;
         }
@@ -102,6 +123,26 @@ namespace ValheimRadioMod
 
         private void Update()
         {
+            bool controller = IsAnyControllerInput();
+            bool keyboardMouse = Input.anyKeyDown ||
+                                 Mathf.Abs(Input.GetAxis("Mouse X")) > 1f ||
+                                 Mathf.Abs(Input.GetAxis("Mouse Y")) > 1f ||
+                                 Mathf.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.01f;
+
+            if (Time.time - lastInputSwitchTime > InputSwitchDelay)
+            {
+                if (controller && !keyboardMouse && !lastInputWasController)
+                {
+                    lastInputWasController = true;
+                    lastInputSwitchTime = Time.time;
+                }
+                else if (keyboardMouse && !controller && lastInputWasController)
+                {
+                    lastInputWasController = false;
+                    lastInputSwitchTime = Time.time;
+                }
+            }
+
             if (Time.time >= hoverEndTime)
                 HoveredRadios.Remove(this);
 
@@ -109,30 +150,84 @@ namespace ValheimRadioMod
 
             if (Time.time < hoverEndTime && !TextInput.IsVisible())
             {
-                if (ZInput.GetKeyDown(KeyCode.E))
-                    ePressTime = Time.time;
+                if (GroupSelectionUI.LastConfirmTime > 0f && Time.time - GroupSelectionUI.LastConfirmTime < 0.3f)
+                    return; // frisch bestätigt → nichts auswerten
+                // --- A (kurz = An/Aus, lang = leiser) ---
+                if ((Input.GetKeyDown(KeyCode.JoystickButton0) || ZInput.GetButtonDown("JoyButtonA")) && Time.time - GroupSelectionUI.LastConfirmTime > 0.3f)
+                    aPressTime = Time.time;
 
-                if (ZInput.GetKey(KeyCode.E) && ePressTime > 0f)
+                if ((Input.GetKey(KeyCode.JoystickButton0) || ZInput.GetButton("JoyButtonA")) && aPressTime > 0f)
                 {
-                    if (Time.time - ePressTime >= LongPressDuration)
+                    if (Time.time - aPressTime >= VolumeHoldDelay && Time.time - lastVolumeTick >= VolumeTickInterval)
+                    {
+                        SetVolume(Volume - 0.05f);
+                        lastVolumeTick = Time.time;
+                    }
+                }
+
+                if (Input.GetKeyUp(KeyCode.JoystickButton0) || ZInput.GetButtonUp("JoyButtonA"))
+                {
+                    if (aPressTime > 0f && Time.time - aPressTime < VolumeHoldDelay)
+                        SetOn(!IsOn);
+                    aPressTime = -1f;
+                }
+
+                // --- X (Sender) mit Cooldown ---
+                if ((ZInput.GetButtonDown("JoyButtonX") || Input.GetKeyDown(KeyCode.JoystickButton2)) && Time.time - lastStationChangeTime > 0.5f)
+                {
+                    CycleStation();
+                    lastStationChangeTime = Time.time;
+                }
+
+                // --- Y (kurz = Gruppe, lang = lauter) ---
+                if (Input.GetKeyDown(KeyCode.JoystickButton3))
+                    yPressTime = Time.time;
+
+                if (Input.GetKey(KeyCode.JoystickButton3) && yPressTime > 0f)
+                {
+                    if (Time.time - yPressTime >= VolumeHoldDelay && Time.time - lastVolumeTick >= VolumeTickInterval)
+                    {
+                        SetVolume(Volume + 0.05f);
+                        lastVolumeTick = Time.time;
+                    }
+                }
+
+                if (Input.GetKeyUp(KeyCode.JoystickButton3))
+                {
+                    if (yPressTime > 0f && Time.time - yPressTime < VolumeHoldDelay)
+                        OpenGroupRename();
+                    yPressTime = -1f;
+                }
+                // --- Tastatur nur wenn zuletzt Tastatur benutzt wurde ---
+                if (!lastInputWasController)
+                {
+                    if (ZInput.GetKeyDown(KeyCode.E))
+                        ePressTime = Time.time;
+
+                    if (ZInput.GetKey(KeyCode.E) && ePressTime > 0f && Time.time - ePressTime >= LongPressDuration)
                     {
                         CycleStation();
                         ePressTime = -1f;
                     }
-                }
 
-                if (ZInput.GetKeyUp(KeyCode.E))
-                {
-                    if (ePressTime > 0f && Time.time - ePressTime < LongPressDuration)
+                    if (ZInput.GetKeyUp(KeyCode.E) && ePressTime > 0f && Time.time - ePressTime < LongPressDuration)
+                    {
                         SetOn(!IsOn);
-                    ePressTime = -1f;
-                }
+                        ePressTime = -1f;
+                    }
 
-                if (ZInput.GetKeyDown(KeyCode.E) && (ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift)))
-                {
-                    OpenGroupRename();
-                    ePressTime = -1f;
+                    if (ZInput.GetKeyDown(KeyCode.E) && (ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift)))
+                    {
+                        OpenGroupRename();
+                        ePressTime = -1f;
+                    }
                 }
+            }
+            else
+            {
+                aPressTime = -1f;
+                yPressTime = -1f;
+                ePressTime = -1f;
             }
 
             if (znetView != null && znetView.IsValid())
@@ -144,12 +239,15 @@ namespace ValheimRadioMod
                 wasOn = IsOn;
             }
 
-            if (!IsOn || AudioManager.Instance == null)
+            if (!IsOn || AudioManager.Instance == null || !isActiveAndEnabled)
             {
-                if (audioSource.isPlaying)
+                if (audioSource != null && audioSource.isPlaying)
                     audioSource.Stop();
                 return;
             }
+            // AudioSource erst jetzt aktivieren
+            if (audioSource != null && !audioSource.enabled)
+                audioSource.enabled = true;
 
             var (clip, position) = AudioManager.Instance.GetCurrentPlayback(CurrentStation);
             if (clip == null) return;
@@ -161,7 +259,7 @@ namespace ValheimRadioMod
                 audioSource.Play();
                 forceClipRefresh = false;
             }
-            else if (Mathf.Abs(audioSource.time - position) > 0.4f)
+            else if (Mathf.Abs(audioSource.time - position) > 0.2f)
             {
                 audioSource.time = position;
             }
@@ -177,6 +275,34 @@ namespace ValheimRadioMod
                     MouseScrollPatch.LastScrollDelta = 0f;
                 }
             }
+        }
+
+        private bool IsAnyControllerInput()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                if (Input.GetKey((KeyCode)((int)KeyCode.JoystickButton0 + i)))
+                    return true;
+            }
+
+            try
+            {
+                if (Mathf.Abs(ZInput.GetJoyLeftStickX()) > 0.2f ||
+                    Mathf.Abs(ZInput.GetJoyLeftStickY()) > 0.2f ||
+                    Mathf.Abs(ZInput.GetJoyRightStickX()) > 0.2f ||
+                    Mathf.Abs(ZInput.GetJoyRightStickY()) > 0.2f)
+                    return true;
+            }
+            catch { }
+
+            if (ZInput.GetButton("JoyButtonA") || ZInput.GetButton("JoyButtonB") ||
+                ZInput.GetButton("JoyButtonX") || ZInput.GetButton("JoyButtonY") ||
+                ZInput.GetButton("JoyDPadUp") || ZInput.GetButton("JoyDPadDown") ||
+                ZInput.GetButton("JoyDPadLeft") || ZInput.GetButton("JoyDPadRight") ||
+                ZInput.GetButton("JoyUse") || ZInput.GetButton("JoyAltUse"))
+                return true;
+
+            return false;
         }
 
         private void OpenGroupRename()
@@ -209,12 +335,17 @@ namespace ValheimRadioMod
                 }
             }
 
+            string toggleKey = lastInputWasController ? "A" : "E";
+            string stationKey = lastInputWasController ? "X" : Localization.instance.Localize("$radio_e_hold");
+            string groupKey = lastInputWasController ? "Y" : "Shift + E";
+            string volumeKey = lastInputWasController ? "A/Y halten" : Localization.instance.Localize("$radio_mouse_wheel");
+
             return $"<size=16><b>{Localization.instance.Localize("$radio_name")}</b></size> ({status}){trackInfo}\n" +
                    $"<color=#888888>────────────────</color>\n" +
-                   $"[<color=yellow><b>E</b></color>] {Localization.instance.Localize("$radio_toggle")}\n" +
-                   $"[<color=yellow><b>{Localization.instance.Localize("$radio_e_hold")}</b></color>] {Localization.instance.Localize("$radio_next_station")}\n" +
-                   $"[<color=yellow><b>Shift + E</b></color>] {Localization.instance.Localize("$radio_group")}: {groupDisplay}\n" +
-                   $"[<color=yellow><b>{Localization.instance.Localize("$radio_mouse_wheel")}</b></color>] {Localization.instance.Localize("$radio_volume")} ({Volume:P0})";
+                   $"[<color=yellow><b>{toggleKey}</b></color>] {Localization.instance.Localize("$radio_toggle")}\n" +
+                   $"[<color=yellow><b>{stationKey}</b></color>] {Localization.instance.Localize("$radio_next_station")}\n" +
+                   $"[<color=yellow><b>{groupKey}</b></color>] {Localization.instance.Localize("$radio_group")}: {groupDisplay}\n" +
+                   $"[<color=yellow><b>{volumeKey}</b></color>] {Localization.instance.Localize("$radio_volume")} ({Volume:P0})";
         }
 
         public string GetHoverName() => "Radio";

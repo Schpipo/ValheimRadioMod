@@ -18,7 +18,6 @@ namespace ValheimRadioMod
         private Dictionary<string, List<float>> stationDurations = new();
         private Dictionary<string, float> stationTotalDuration = new();
         public IReadOnlyCollection<string> StationNames => stationFiles.Keys;
-        // tracking loading progress
         public int TotalStations { get; private set; }
         public int LoadedStations { get; private set; }
         public int CurrentStationTracks { get; private set; }
@@ -73,7 +72,6 @@ namespace ValheimRadioMod
 
         private IEnumerator LoadAllTracksDelayed()
         {
-            // wait for a few seconds to let the game finish loading before starting to load audio
             yield return new WaitForSeconds(10f);
 
             Jotunn.Logger.LogInfo("Starting full station load...");
@@ -141,6 +139,14 @@ namespace ValheimRadioMod
 
             stationTotalDuration[station] = total;
             Jotunn.Logger.LogInfo($"Station '{station}' loaded: {files.Count} tracks, total {total:F1}s");
+            Jotunn.Logger.LogInfo($"=== Playlist '{station}' ({files.Count} tracks, {total:F1}s) ===");
+            for (int i = 0; i < files.Count; i++)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(files[i]);
+                float len = stationDurations[station][i];
+                Jotunn.Logger.LogInfo($"  [{i + 1:D2}] {fileName} ({len:F1}s)");
+            }
+            Jotunn.Logger.LogInfo($"=== End of '{station}' ===");
         }
 
         public (AudioClip clip, float position) GetCurrentPlayback(string station)

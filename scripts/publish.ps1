@@ -53,10 +53,10 @@ if ($Target.Equals("Debug")) {
     Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$plug" -Force
     Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$plug" -Force
 	Copy-Item -Path "$ProjectPath\icon_build.png" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\radio" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\Localization.json" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\MonoMod.Backports.dll" -Destination "$plug" -Force
-	Copy-Item -Path "$ProjectPath\MonoMod.ILHelpers.dll" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\RadioMod\radio" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\RadioMod\Localization.json" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\RadioMod\MonoMod.Backports.dll" -Destination "$plug" -Force
+	Copy-Item -Path "$ProjectPath\Package\RadioMod\MonoMod.ILHelpers.dll" -Destination "$plug" -Force
 }
 
 if ($Target.Equals("Release")) {
@@ -76,13 +76,13 @@ if ($Target.Equals("Release")) {
 
     # Dateien kopieren
     Copy-Item "$TargetPath\$TargetAssembly" "$pluginsPath\$TargetAssembly" -Force
-    Copy-Item "$ProjectPath\Localization.json" $pluginsPath -Force -ErrorAction SilentlyContinue
-    Copy-Item "$ProjectPath\radio" $pluginsPath -Force -ErrorAction SilentlyContinue
-    Copy-Item "$ProjectPath\icon_build.png" $pluginsPath -Force -ErrorAction SilentlyContinue
-	Copy-Item "$ProjectPath\icon.png" $PackagePath -Force -ErrorAction SilentlyContinue
-    Copy-Item "$ProjectPath\README.md" $pluginsPath -Force -ErrorAction SilentlyContinue
-	Copy-Item "$ProjectPath\MonoMod.Backports.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
-	Copy-Item "$ProjectPath\MonoMod.ILHelpers.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
+	Copy-Item "$ProjectPath\Packing\icon.png" $PackagePath -Force -ErrorAction SilentlyContinue
+    # Copy-Item "$ProjectPath\Packing\README.md" $pluginsPath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\Packing\RadioMod\Localization.json" $pluginsPath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\Packing\RadioMod\radio" $pluginsPath -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ProjectPath\Packing\RadioMod\icon_build.png" $pluginsPath -Force -ErrorAction SilentlyContinue
+	Copy-Item "$ProjectPath\Packing\RadioMod\MonoMod.Backports.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
+	Copy-Item "$ProjectPath\Packing\RadioMod\MonoMod.ILHelpers.dll" $pluginsPath -Force -ErrorAction SilentlyContinue
 
     # Zip erstellen
     $zipPath = Join-Path $TargetPath "$name.zip"

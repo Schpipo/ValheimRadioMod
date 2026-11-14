@@ -28,10 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Localization.json">
+    <Content Include="Packing\RadioMod\Localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="icon_build.png">
+    <Content Include="Packing\RadioMod\icon_build.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
